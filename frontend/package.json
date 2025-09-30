@@ -1,0 +1,12 @@
+{
+  "name": "xai-phy-frontend",
+  "version": "1.0.0",
+  "description": "XAI-Phy: A Visual Explorer for Language Models",
+  "scripts": {
+    "start": "npx serve",
+    "build": "echo 'No build step required'"
+  },
+  "dependencies": {
+    "serve": "^14.0.0"
+  }
+}
