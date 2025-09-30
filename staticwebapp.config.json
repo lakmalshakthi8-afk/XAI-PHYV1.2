@@ -1,0 +1,16 @@
+{
+  "platform": {
+    "apiRuntime": "python:3.10"
+  },
+  "routes": {
+    "/": {
+      "rewrite": "/index.html"
+    },
+    "/api/*": {
+      "proxy": "http://localhost:8000"
+    }
+  },
+  "navigationFallback": {
+    "rewrite": "/index.html"
+  }
+}
