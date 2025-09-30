@@ -36,9 +36,16 @@ class ModelBackend(Protocol):
 app = FastAPI()
 
 # Enable CORS with specific origins
+origins = [
+    "http://localhost:3000",
+    "http://localhost:5000",
+    "http://localhost:7071",
+    "https://icy-island-0fa2fc70f.1.azurestaticapps.net",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # For development. In production, specify your frontend URL
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

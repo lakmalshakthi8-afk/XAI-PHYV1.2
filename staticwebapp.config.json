@@ -2,14 +2,17 @@
   "platform": {
     "apiRuntime": "python:3.10"
   },
-  "routes": {
-    "/": {
-      "rewrite": "/index.html"
+  "routes": [
+    {
+      "route": "/api/*",
+      "methods": ["GET", "POST", "PUT", "DELETE"],
+      "rewrite": "/api/main"
     },
-    "/api/*": {
-      "proxy": "http://localhost:8000"
+    {
+      "route": "/*",
+      "rewrite": "/index.html"
     }
-  },
+  ],
   "navigationFallback": {
     "rewrite": "/index.html"
   }

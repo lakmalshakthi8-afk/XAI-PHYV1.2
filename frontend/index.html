@@ -5,7 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>XAI-Phy: A Visual Explorer for Language Models</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect"                 try {
+                    console.log('Making request to:', `${API_URL}/analyze?text=${encodeURIComponent(textInput.value)}`);
+                    const response = await fetch(`${API_URL}/analyze?text=${encodeURIComponent(textInput.value)}`);
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        console.error('API Error:', response.status, errorText);
+                        throw new Error(`HTTP error! status: ${response.status}\n${errorText}`);
+                    }
+                    const result = await response.json();https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -195,7 +203,7 @@
     </div>
 
     <script>
-        const API_URL = '/api';  // This will work both locally and in Azure
+        const API_URL = window.location.hostname.includes('localhost') ? 'http://localhost:7071/api' : '/api';  // Dynamic API URL
         
         function updateIntegrityReport(report) {
             const reportDiv = document.getElementById('integrity-report');
