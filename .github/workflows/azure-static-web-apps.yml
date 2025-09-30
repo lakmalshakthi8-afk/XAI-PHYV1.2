@@ -32,6 +32,9 @@ jobs:
           app_location: "/frontend"
           api_location: "/api"
           output_location: ""
+          app_build_command: "npm install && npm run build"
+          api_build_command: "pip install -r requirements.txt"
+          skip_deploy_on_missing_secrets: true
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
