@@ -286,6 +286,12 @@ async def analyze_text(text: str):
             }
         )
 
+
+@app.get("/api/health")
+async def health_check():
+    """Simple health endpoint for deployments to verify the API is up."""
+    return {"status": "ok", "api": "XAI-Phy"}
+
 def generate_mock_attention_map():
     try:
         # Create a more interesting heatmap
