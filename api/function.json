@@ -6,16 +6,20 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
-      "methods": [
-        "get",
-        "post"
-      ],
-      "route": "{*path}"
+      "methods": ["get", "post", "options"],
+      "route": "{*route}"
     },
     {
       "type": "http",
       "direction": "out",
       "name": "$return"
     }
-  ]
+  ],
+  "language": {
+    "python": {
+      "workerRuntime": "python",
+      "extensionVersion": "~4",
+      "workerVersion": "3.10"
+    }
+  }
 }
