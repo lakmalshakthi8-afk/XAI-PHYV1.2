@@ -195,7 +195,49 @@
     </div>
 
     <script>
-        const API_URL = 'http://localhost:8000';  // Change this when deploying to Azure
+        const API_URL = '/api';  // This will work both locally and in Azure
+        
+        function updateIntegrityReport(report) {
+            const reportDiv = document.getElementById('integrity-report');
+            reportDiv.innerHTML = '';
+            
+            if (report.hallucinations && report.hallucinations.length > 0) {
+                const hall = document.createElement('div');
+                hall.innerHTML = `
+                    <h4 class="font-semibold text-red-400">Potential Hallucinations</h4>
+                    <ul class="list-disc list-inside pl-4 space-y-1">
+                        ${report.hallucinations.map(h => `<li>${h.text} (${(h.confidence * 100).toFixed(1)}% confidence)</li>`).join('')}
+                    </ul>`;
+                reportDiv.appendChild(hall);
+            }
+            
+            if (report.contradictions && report.contradictions.length > 0) {
+                const contr = document.createElement('div');
+                contr.innerHTML = `
+                    <h4 class="font-semibold text-yellow-400">Contradictions</h4>
+                    <ul class="list-disc list-inside pl-4 space-y-1">
+                        ${report.contradictions.map(c => `<li>${c.tokens.join(' vs ')} (Score: ${(c.score * 100).toFixed(1)}%)</li>`).join('')}
+                    </ul>`;
+                reportDiv.appendChild(contr);
+            }
+            
+            if (report.logical_consistency && report.logical_consistency.length > 0) {
+                const logic = document.createElement('div');
+                logic.innerHTML = `
+                    <h4 class="font-semibold text-blue-400">Logical Analysis</h4>
+                    <ul class="list-disc list-inside pl-4 space-y-1">
+                        ${report.logical_consistency.map(l => `
+                            <li class="${l.is_consistent ? 'text-green-400' : 'text-red-400'}">
+                                ${l.text} (${l.is_consistent ? '✓' : '✗'})
+                            </li>`).join('')}
+                    </ul>`;
+                reportDiv.appendChild(logic);
+            }
+            
+            if (!report.hallucinations.length && !report.contradictions.length && !report.logical_consistency.length) {
+                reportDiv.innerHTML = '<p class="text-gray-400">No integrity issues found.</p>';
+            }
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
             const analyzeBtn = document.getElementById('analyze-btn');
