@@ -244,6 +244,11 @@
                     return;
                 }
 
+                // Disable button and show loading state
+                analyzeBtn.disabled = true;
+                analyzeBtn.classList.add('opacity-50');
+                analyzeBtn.textContent = 'Analyzing...';
+
                 resultsPlaceholder.classList.add('hidden');
                 resultsContainer.classList.add('hidden');
                 loaderContainer.classList.remove('hidden');
@@ -251,19 +256,42 @@
 
                 try {
                     const response = await fetch(`${API_URL}/analyze?text=${encodeURIComponent(textInput.value)}`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
                     const data = await response.json();
 
+                    if (data.status !== 'success') {
+                        throw new Error('Analysis failed');
+                    }
+
                     // Update visualizations
-                    attentionMapImg.src = `data:image/png;base64,${data.attention_map}`;
-                    downloadMapBtn.href = `data:image/png;base64,${data.attention_map}`;
+                    if (data.attention_map) {
+                        attentionMapImg.src = `data:image/png;base64,${data.attention_map}`;
+                        downloadMapBtn.href = `data:image/png;base64,${data.attention_map}`;
+                        downloadMapBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                        downloadMapBtn.removeAttribute('disabled');
+                    } else {
+                        attentionMapImg.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="%23374151"/><text x="50" y="50" font-family="Arial" font-size="10" fill="%23ffffff" text-anchor="middle">No visualization available</text></svg>';
+                        downloadMapBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                        downloadMapBtn.setAttribute('disabled', 'true');
+                    }
                     
-                    attentionAnimationImg.src = `data:image/gif;base64,${data.attention_gif}`;
-                    downloadGifBtn.href = `data:image/gif;base64,${data.attention_gif}`;
+                    if (data.attention_gif) {
+                        attentionAnimationImg.src = `data:image/gif;base64,${data.attention_gif}`;
+                        downloadGifBtn.href = `data:image/gif;base64,${data.attention_gif}`;
+                        downloadGifBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                        downloadGifBtn.removeAttribute('disabled');
+                    } else {
+                        attentionAnimationImg.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="%23374151"/><text x="50" y="50" font-family="Arial" font-size="10" fill="%23ffffff" text-anchor="middle">No animation available</text></svg>';
+                        downloadGifBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                        downloadGifBtn.setAttribute('disabled', 'true');
+                    }
 
                     // Update integrity report
                     let reportHTML = '';
                     
-                    if (data.integrity_report.hallucinations.length > 0) {
+                    if (data.integrity_report.hallucinations && data.integrity_report.hallucinations.length > 0) {
                         data.integrity_report.hallucinations.forEach(h => {
                             reportHTML += `
                                 <div class="p-3 bg-yellow-900/30 border border-yellow-500/50 rounded-lg">
@@ -273,7 +301,7 @@
                         });
                     }
 
-                    if (data.integrity_report.contradictions.length > 0) {
+                    if (data.integrity_report.contradictions && data.integrity_report.contradictions.length > 0) {
                         data.integrity_report.contradictions.forEach(c => {
                             reportHTML += `
                                 <div class="p-3 bg-red-900/30 border border-red-500/50 rounded-lg">
@@ -283,7 +311,7 @@
                         });
                     }
 
-                    if (data.integrity_report.logical_consistency.length > 0) {
+                    if (data.integrity_report.logical_consistency && data.integrity_report.logical_consistency.length > 0) {
                         data.integrity_report.logical_consistency.forEach(l => {
                             reportHTML += `
                                 <div class="p-3 bg-green-900/30 border border-green-500/50 rounded-lg">
@@ -293,8 +321,15 @@
                         });
                     }
 
-                    integrityReport.innerHTML = reportHTML;
+                    if (!reportHTML) {
+                        reportHTML = `
+                            <div class="p-3 bg-blue-900/30 border border-blue-500/50 rounded-lg">
+                                <p><strong class="text-blue-400">Analysis Complete</strong></p>
+                                <p class="text-sm">No issues detected in the provided text.</p>
+                            </div>`;
+                    }
 
+                    integrityReport.innerHTML = reportHTML;
                     loaderContainer.classList.add('hidden');
                     resultsContainer.classList.remove('hidden');
                 } catch (error) {
@@ -302,10 +337,16 @@
                     integrityReport.innerHTML = `
                         <div class="p-3 bg-red-900/30 border border-red-500/50 rounded-lg">
                             <p><strong class="text-red-400">Error</strong></p>
-                            <p class="text-sm">Failed to analyze text. Please try again later.</p>
+                            <p class="text-sm">Failed to analyze text: ${error.message}</p>
+                            <p class="text-xs mt-2 text-gray-400">Please try again or contact support if the issue persists.</p>
                         </div>`;
                     loaderContainer.classList.add('hidden');
                     resultsContainer.classList.remove('hidden');
+                } finally {
+                    // Re-enable button
+                    analyzeBtn.disabled = false;
+                    analyzeBtn.classList.remove('opacity-50');
+                    analyzeBtn.textContent = 'Analyze Text';
                 }
             });
         });
